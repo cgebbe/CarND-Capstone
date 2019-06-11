@@ -51,6 +51,6 @@ class Controller(object):
             brake = 0.0
         else:
             throttle = 0.0
-            brake = (-1) * acceleration * self.params['vehicle_mass'] / self.params['wheel_base']
+            brake = (-1) * acceleration * self.params['vehicle_mass'] * self.params['wheel_base']
 
         return throttle, brake, angle

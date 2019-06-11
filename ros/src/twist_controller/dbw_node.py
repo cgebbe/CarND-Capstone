@@ -50,8 +50,8 @@ class DBWNode(object):
         self.params['max_steer_angle'] = rospy.get_param('~max_steer_angle', 8.)
         self.params['min_speed'] = 0 # required for yaw controller
         self.params['kp'] = 0.3 # required for pid controller
-        self.params['kd'] = 0#4.0 # required for pid controller
-        self.params['ki'] = 0#0.003 # required for pid controller
+        self.params['kd'] = 0#4.0 # required for pid controller - 0
+        self.params['ki'] = 0#0.003 # required for pid controller - 0.1 (maybe max accel=0.2)
 
         # internal
         self.controller = twist_controller.Controller(self.params)
@@ -80,13 +80,14 @@ class DBWNode(object):
             rate.sleep()
 
     def cb_manual_break(self, msg):
+        # activate via  $rostopic pub /manual_break std_msgs/Bool True
         self.flag_manual_break = msg.data
 
     def cb_twist_goal(self, msg):
         vel_linear_goal = msg.twist.linear.x
         vel_angular_goal = msg.twist.angular.z
         if self.flag_manual_break:
-            vel_linear_goal = -0.1
+            vel_linear_goal = -1.0
         self.controller.set_vel_goal(vel_linear_goal, vel_angular_goal)
 
     def cb_velocity_curr(self, msg):
