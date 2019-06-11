@@ -3,6 +3,7 @@
 import rospy
 from geometry_msgs.msg import PoseStamped
 from styx_msgs.msg import Lane, Waypoint
+import std_msgs.msg
 
 import math
 import scipy.spatial
@@ -24,7 +25,6 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
 LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
-VELOCITY_IN_M_PER_S = 20
 
 class WaypointUpdater(object):
     def __init__(self):
@@ -41,6 +41,7 @@ class WaypointUpdater(object):
         self.msg_waypoints = None
         self.waypoints_2d = None
         self.waypoints_tree = None
+        self.velocity_in_meter_per_s = 20.0
 
         # start looping
         self.loop()
@@ -79,7 +80,7 @@ class WaypointUpdater(object):
 
         # set speed for waypoints
         for wp in msg_lane.waypoints:
-            wp.twist.twist.linear.x = VELOCITY_IN_M_PER_S
+            wp.twist.twist.linear.x = self.velocity_in_meter_per_s
 
         # publish them
         self.pub_final_waypoints.publish(msg_lane)

@@ -56,9 +56,11 @@ class DBWNode(object):
         # internal
         self.controller = twist_controller.Controller(self.params)
         self.dbw_enabled = True
+        self.flag_manual_break = False
 
         # setup publishers and subscribers
         rospy.Subscriber('/vehicle/dbw_enabled', std_msgs.msg.Bool, self.cb_dbw_enabled)
+        rospy.Subscriber('/manual_break', std_msgs.msg.Bool, self.cb_manual_break)
         rospy.Subscriber('/twist_cmd', geometry_msgs.msg.TwistStamped, self.cb_twist_goal)
         rospy.Subscriber('/current_velocity', geometry_msgs.msg.TwistStamped, self.cb_velocity_curr)
         self.pub_steer = rospy.Publisher('/vehicle/steering_cmd', SteeringCmd, queue_size=1)
@@ -77,9 +79,14 @@ class DBWNode(object):
                     self.publish(throttle, brake, steering)
             rate.sleep()
 
+    def cb_manual_break(self, msg):
+        self.flag_manual_break = msg.data
+
     def cb_twist_goal(self, msg):
         vel_linear_goal = msg.twist.linear.x
         vel_angular_goal = msg.twist.angular.z
+        if self.flag_manual_break:
+            vel_linear_goal = -0.1
         self.controller.set_vel_goal(vel_linear_goal, vel_angular_goal)
 
     def cb_velocity_curr(self, msg):

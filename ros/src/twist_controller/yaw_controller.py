@@ -20,21 +20,13 @@ class YawController(object):
         angle = atan(self.wheel_base / radius) * self.steer_ratio
         return max(self.min_angle, min(self.max_angle, angle))
 
-    def get_steering(self, linear_velocity, angular_velocity, current_velocity):
+    def get_steering(self, vel_linear_goal, vel_angular_goal, vel_linear_curr):
         # "normalize" goal angular velocity by current velocity
-        if abs(linear_velocity) > 0.:
-            angular_velocity = angular_velocity  * current_velocity / linear_velocity
-        else:
-            angular_velocity = 0.
+        max_yaw_rate = abs(self.max_lat_accel / vel_linear_curr);
+        if abs(vel_linear_goal) < 0.01:
+            return 0
 
-        # prevent too high values
-        if abs(current_velocity) > 0.1:
-            max_yaw_rate = abs(self.max_lat_accel / current_velocity);
-            angular_velocity = np.clip(angular_velocity, -max_yaw_rate, +max_yaw_rate)
-
-        # get angle
-        if abs(angular_velocity) > 0.:
-            angle = self.get_angle(max(current_velocity, self.min_speed) / angular_velocity)
-        else:
-            angle = 0
+        #vel_angular_goal = vel_angular_goal * vel_linear_curr / vel_linear_goal
+        vel_angular_goal = np.clip(vel_angular_goal, -max_yaw_rate, +max_yaw_rate)
+        angle = self.get_angle(max(vel_linear_curr, self.min_speed) / vel_angular_goal)
         return angle
