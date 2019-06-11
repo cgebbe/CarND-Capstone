@@ -1,6 +1,7 @@
-
+import numpy as np
 MIN_NUM = float('-inf')
 MAX_NUM = float('inf')
+import time
 
 
 class PID(object):
@@ -10,25 +11,32 @@ class PID(object):
         self.kd = kd
         self.min = mn
         self.max = mx
-
-        self.int_val = self.last_error = 0.
+        self.error_int = 0
+        self.error_prev = 0.
+        self.time_prev = None
 
     def reset(self):
-        self.int_val = 0.0
+        self.error_int = 0.0
 
-    def step(self, error, sample_time):
-
-        integral = self.int_val + error * sample_time;
-        derivative = (error - self.last_error) / sample_time;
-
-        val = self.kp * error + self.ki * integral + self.kd * derivative;
-
-        if val > self.max:
-            val = self.max
-        elif val < self.min:
-            val = self.min
+    def step(self, error, sample_time=None):
+        # measure time
+        if sample_time is None:
+            if self.time_prev is None:
+                self.time_prev = time.time()
+                return 0
+            else:
+                time_now = time.time()
+                dt = time_now - self.time_prev
+                self.time_prev = time_now
         else:
-            self.int_val = integral
-        self.last_error = error
+            dt = sample_time
 
-        return val
+        # calculate derivative and integrative
+        self.error_int += error * dt;
+        error_deriv = (error - self.error_prev) / dt;
+        self.error_prev = error
+
+        # determine output value
+        accel = self.kp * error + self.kd * error_deriv + self.ki * self.error_int ;
+        accel = np.clip(accel, self.min, self.max)
+        return accel
