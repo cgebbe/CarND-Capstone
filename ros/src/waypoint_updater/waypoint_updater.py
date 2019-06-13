@@ -52,7 +52,7 @@ class WaypointUpdater(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(50)
+        rate = rospy.Rate(10) # 10 Hz should suffice ?!
         while not rospy.is_shutdown():
             if self.pose and self.waypoints_tree:
                 self.publish_waypoints()
@@ -94,15 +94,13 @@ class WaypointUpdater(object):
 
     def set_velocities(self, msg_lane, idx_wp_start):
         rospy.loginfo("idx_wp_to_stop={}, idx_wp_next={}".format(self.idx_wp_to_stop, idx_wp_start))
-        idx_list_to_stop = self.idx_wp_to_stop - idx_wp_start
-        is_break_impossible = (self.calc_distance(idx_wp_start, idx_wp_start + idx_list_to_stop) < 5
-                               and self.velocity_current > 0.9 * self.velocity_in_meter_per_s)
-        if (self.idx_wp_to_stop < 0  # negative values mean no need to stop anywhere
-                or is_break_impossible  # or idx_list_to_stop < 20  # if you cannot break anymore...
-        ):
+        #is_break_impossible = (self.calc_distance(idx_wp_start, idx_wp_start + idx_list_to_stop) < 5
+        #                       and self.velocity_current > 0.9 * self.velocity_in_meter_per_s)
+        if self.idx_wp_to_stop < 0: # negative value = no need to stop anywhere
             for wp in msg_lane.waypoints:
                 wp.twist.twist.linear.x = self.velocity_in_meter_per_s
         else:
+            idx_list_to_stop = self.idx_wp_to_stop - idx_wp_start
             dist = 0
             ACC_MIN = -3
             for idx in np.arange(LOOKAHEAD_WPS-1, -1, -1):
