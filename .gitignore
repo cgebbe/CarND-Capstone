@@ -1,8 +1,12 @@
 *.py[cod]
 
-build
-devel
-
+build/
+devel/
+export/
+*.pb
+*.pb.txt
+*.ckpt
+*.meta
 profile.tmp
 
-.idea
+.idea/
