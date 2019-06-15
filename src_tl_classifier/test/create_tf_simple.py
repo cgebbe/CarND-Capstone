@@ -44,39 +44,18 @@ def freeze_session(session, keep_var_names=None, output_names=None, clear_device
         return frozen_graph
 
 
-# Create some wrappers for simplicity
-def conv2d(x, W, b, strides=1, name=None):
-    # Conv2D wrapper, with bias and relu activation
-    x = tf.nn.conv2d(x, W,
-                     strides=[1, strides, strides, 1],
-                     padding='SAME',
-                     name=name + '_conv',
-                     )
-    x = tf.nn.bias_add(x, b,
-                       name=name + '_bias_add', )
-    x = tf.nn.relu(x, name=name + '_relu', )
-    return x
-
-
-def maxpool2d(x, k=2, name=None):
-    # MaxPool2D wrapper
-    return tf.nn.max_pool(x,
-                          ksize=[1, k, k, 1], strides=[1, k, k, 1],
-                          padding='SAME',
-                          name=name)
-
-
 # Create model
 def get_architecture(x, prob_keep_dropout, num_classes):
-    # Convolution Layer
-    x = tf.layers.conv2d(x, 32, (5,5), padding='same',
-                             activation = tf.nn.relu, name='conv1')
-    x = tf.layers.max_pooling2d(x, 2, 2, padding='same', name='pool1')
+    def block(x, num_filters, name, kernel_size=(5,5), prob_keep_dropout=1.0):
+        x = tf.layers.conv2d(x, num_filters, kernel_size, padding='same',
+                             activation=tf.nn.relu, name=name+'_conv')
+        x = tf.layers.max_pooling2d(x, 2, 2, padding='same', name=name+'_pool')
+        x = tf.nn.dropout(x, prob_keep_dropout, name=name+'_dropout')
+        return x
 
-    # Convolution Layer
-    x = tf.layers.conv2d(x, 64, (5,5), padding='same',
-                             activation = tf.nn.relu, name='conv2')
-    x = tf.layers.max_pooling2d(x, 2, 2, padding='same', name='pool2')
+    # blocks of convolution + maxpool + dropout (potentially)
+    x = block(x, 32, 'block1', kernel_size=(5,5), prob_keep_dropout=1.0)
+    x = block(x, 64, 'block2', kernel_size=(5,5), prob_keep_dropout=1.0)
 
     # Flatten
     shape = x._shape_as_list()
