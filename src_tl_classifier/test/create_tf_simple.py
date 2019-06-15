@@ -68,45 +68,27 @@ def maxpool2d(x, k=2, name=None):
 
 # Create model
 def get_architecture(x, prob_keep_dropout, num_classes):
-    # weights and bias
-    weights = {
-        'w_conv1': tf.Variable(tf.random_normal([5, 5, 1, 32])),
-        'w_conv2': tf.Variable(tf.random_normal([5, 5, 32, 64])),
-        'w_fc1': tf.Variable(tf.random_normal([7 * 7 * 64, 1024])),
-        'w_fc2': tf.Variable(tf.random_normal([1024, num_classes]))
-    }
-
-    biases = {
-        'b_conv1': tf.Variable(tf.random_normal([32])),
-        'b_conv2': tf.Variable(tf.random_normal([64])),
-        'b_fc1': tf.Variable(tf.random_normal([1024])),
-        'b_fc2': tf.Variable(tf.random_normal([num_classes]))
-    }
-
-    # MNIST data input is a 1-D vector of 784 features (28*28 pixels)
-    # Reshape to match picture format [Height x Width x Channel]
-    # Tensor input become 4-D: [Batch Size, Height, Width, Channel]
-    #x = tf.reshape(x, shape=[-1, 28, 28, 1])
+    # Convolution Layer
+    x = tf.layers.conv2d(x, 32, (5,5), padding='same',
+                             activation = tf.nn.relu, name='conv1')
+    x = tf.layers.max_pooling2d(x, 2, 2, padding='same', name='pool1')
 
     # Convolution Layer
-    conv1 = conv2d(x, weights['w_conv1'], biases['b_conv1'], name='conv1')
-    conv1 = maxpool2d(conv1, k=2, name='conv1_pool')
-
-    # Convolution Layer
-    conv2 = conv2d(conv1, weights['w_conv2'], biases['b_conv2'], name='conv2')
-    conv2 = maxpool2d(conv2, k=2, name='conv2_pool')
+    x = tf.layers.conv2d(x, 64, (5,5), padding='same',
+                             activation = tf.nn.relu, name='conv2')
+    x = tf.layers.max_pooling2d(x, 2, 2, padding='same', name='pool2')
 
     # Flatten
-    fc1 = tf.reshape(conv2, [-1, weights['w_fc1'].get_shape().as_list()[0]])
+    shape = x._shape_as_list()
+    num_elements = shape[1] * shape[2] * shape[3]
+    x = tf.reshape(x, [-1, num_elements])
 
-    # fully connected layer 1 including dropout
-    fc1 = tf.add(tf.matmul(fc1, weights['w_fc1']), biases['b_fc1'], name='fc1')
-    fc1 = tf.nn.relu(fc1, name='fc1_relu')
-    fc1 = tf.nn.dropout(fc1, prob_keep_dropout, name='fc1_dropout')
+    # Fully connected
+    x = tf.layers.dense(x, 1024, activation=tf.nn.relu, name='fc1')
+    x = tf.nn.dropout(x, prob_keep_dropout, name='fc1_dropout')
+    x = tf.layers.dense(x, num_classes, activation=tf.nn.relu, name='fc2')
 
-    # fully connected layer 2
-    fc2 = tf.add(tf.matmul(fc1, weights['w_fc2']), biases['b_fc2'], name='fc2')
-    return fc2
+    return x
 
 
 def get_graph(X,
@@ -260,7 +242,7 @@ def load_datasets_own(width, height, recalc=False):
 
 if __name__ == '__main__':
     # load datasets and set
-    dataset_name = 'own' #''mnist' #
+    dataset_name = 'mnist' #''mnist' #
     if dataset_name == 'own':
         width = 320
         height = 240
@@ -275,8 +257,6 @@ if __name__ == '__main__':
         num_classes = 10  # for MNIST total classes (0-9 digits)
     else:
         raise NotImplementedError
-
-    # Network parameters
 
     # Training parameters
     num_steps = 200
@@ -322,8 +302,9 @@ if __name__ == '__main__':
         print("Testing Accuracy:", acc)
 
         # Save graph as protobuf file
-        path_folder_out = os.path.dirname(__file__)
-        frozen_graph = freeze_session(sess, output_names=['softmax'])
-        tf.train.write_graph(frozen_graph, path_folder_out, "model.pb", as_text=False)
-        tf.train.write_graph(frozen_graph, path_folder_out, "model.pb.txt", as_text=True)
-        print("=== Finished!")
+        if False:
+            path_folder_out = os.path.dirname(__file__)
+            frozen_graph = freeze_session(sess, output_names=['softmax'])
+            tf.train.write_graph(frozen_graph, path_folder_out, "model.pb", as_text=False)
+            tf.train.write_graph(frozen_graph, path_folder_out, "model.pb.txt", as_text=True)
+            print("=== Finished!")
