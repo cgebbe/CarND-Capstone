@@ -8,13 +8,13 @@ from styx_msgs.msg import Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from light_classification.tl_classifier import TLClassifier
-import tf
 import cv2
 import yaml
 import scipy.spatial
 import numpy as np
 import time
 import os
+import matplotlib.pyplot as plt
 
 '''
 /vehicle/traffic_lights provides you with the location of the traffic light in 3D map space and
@@ -70,6 +70,8 @@ class TLDetector(object):
         self.cv_bridge = CvBridge()
         self.img_cnt = 0
         self.img_t_last = time.time()
+        self.classifier = TLClassifier(filename_pb="model.pb")
+        self.img_queue = []
 
         # start looping
         rospy.spin()
@@ -107,21 +109,62 @@ class TLDetector(object):
             # copy information from msg into class object
             for idx, light_gt in enumerate(msg.lights):
                 self.lights[idx].state_true = light_gt.state
-                self.lights[idx].state_pred = light_gt.state
-            self.check_lights()
 
-    def cb_image(self, msg_img):
+    def cb_image(self,
+                 msg_img,
+                 num_images_skip=3,
+                 dt_min_between_images = 0.050,
+                 flag_export=False,
+                 ):
         # only do stuff with image if next traffic light is close. Also don't process every image
         distance = self.get_distance_to_next_light()
         if distance is not None and distance < 100:
             self.img_cnt += 1
             time_now = time.time()
-            if self.img_cnt % 5 == 0 and time_now - self.img_t_last > 0.100:
+            if self.img_cnt % num_images_skip == 0 and time_now - self.img_t_last > dt_min_between_images:
                 self.img_t_last = time_now
 
                 # start of actual processing
                 img_numpy = self.cv_bridge.imgmsg_to_cv2(msg_img, "bgr8")
-                self.export_image(img_numpy, distance)
+                if flag_export:
+                    self.export_image(img_numpy, distance)
+                else:
+                    state = self.predict_state(img_numpy)
+                    if state is not None:
+                        next_light = self.lights[self.idx_light_next]
+                        next_light.state_pred = state
+                        self.check_lights()
+
+
+    def predict_state(self,
+                      img,
+                      batch_size=3,
+                      target_size=(320, 240),
+                      ratio_min_detection=0.6,
+                      ):
+        # resize image, scale values, convert to RGB and  and append to queue
+        img = cv2.resize(img, target_size, interpolation=cv2.INTER_LINEAR)
+        img = img / 255.
+        img = img[:,:,::-1] # converts BGR to RGB
+        self.img_queue.append(img)
+
+        # only if queue has batch_size items in it, run prediction
+        if len(self.img_queue) == batch_size:
+            input_tensor = np.asarray(self.img_queue)
+            assert(input_tensor.ndim == 4)
+            self.img_queue = []
+
+            prob_all = self.classifier.predict(input_tensor)
+            prob_red = prob_all[:,0]
+            if np.mean(prob_red > 0.5) > ratio_min_detection:
+                return 0 # meaning traffic light = red
+            elif np.mean(prob_red < 0.5) > ratio_min_detection:
+                return 2 # meaning traffic light = green
+            else:
+                return None
+        else:
+            return None
+
 
     def export_image(self, img_numpy, distance):
         light_state = self.lights[self.idx_light_next].state_true  # state as int 0,1,2,3, see above
