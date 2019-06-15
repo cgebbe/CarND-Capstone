@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # params
     #path_pb = r"/mnt/sda1/projects/git/udacity_car_nanodegree/term2_new_syllabus/VM_capstone/shared/src_tl_classifier/create/new_model.pb"
     #path_pb = r"/mnt/sda1/projects/git/udacity_car_nanodegree/term2_new_syllabus/VM_capstone/shared/src_tl_classifier/create/mobilenet_v1/model.pb"
-    path_pb = r"/mnt/sda1/projects/git/udacity_car_nanodegree/term2_new_syllabus/VM_capstone/shared/src_tl_classifier/test/mnist/model.pb"
+    path_pb = r"/mnt/sda1/projects/git/udacity_car_nanodegree/term2_new_syllabus/VM_capstone/shared/src_tl_classifier/test/own/model.pb"
     #path_meta = r"/mnt/sda1/projects/git/udacity_car_nanodegree/term2_new_syllabus/VM_capstone/shared/src_tl_classifier/create/own_simple/model.meta"
     #path_ckpt = r"/mnt/sda1/projects/git/udacity_car_nanodegree/term2_new_syllabus/VM_capstone/shared/src_tl_classifier/create/own_simple/model.ckpt"
     is_pb = True
