@@ -56,6 +56,7 @@ Alternatively, ROS melodic for Ubuntu 18.04
 - virtualbox 2d acceleration = for video applications, see https://askubuntu.com/questions/187753/how-much-difference-can-2d-acceleration-in-virtualbox-bring
 https://superuser.com/questions/1094936/what-are-2d-video-acceleration-and-3d-acceleration
 
+-> I cannot use GPU in virtualbox. Thus, create classifier "offline" and run it using CPU only in VM.
 
 
 ## Setting up VM
@@ -145,6 +146,7 @@ https://medium.com/udacity/the-end-of-a-self-driving-car-journey-finale-running-
 
 - publish the _next_ ~200 waypoints ahead of vehicle !
 - velocity is stored in twist.linear.x ?!
+- see detailed walkthrough in video !
 
 ## DBW
 
@@ -171,7 +173,7 @@ Idea how to implement (before realising there's also a walkthrough for that...):
 	output:
 		steering = yaw_controller.get_steering(vel_goal_z, vel_goal_angle_z, vel_curr)
 		
-- check
+- see detailed walkthrough in video (only found that later...) !
 
 ## Consider traffic lights using ground truth data
 
@@ -225,29 +227,30 @@ Idea how to implement (before realising there's also a walkthrough for that...):
 	- before: some conv layer to identify red traffic light in various sizes
 - searching for "fast image classification" yielded mobilenets
 	https://hackernoon.com/creating-insanely-fast-image-classifiers-with-mobilenet-in-tensorflow-f030ce0a2991
-- How to train model?
-	Main insight:
-		VM already has protobuf v3.8.0, which is current version.
-		So we can definitely use protobuf file as "exchange" format, i.e- train with different versions and simply run tensorflow pb file
-	Option 1: Start from scratch using tensorflow 1.3.0
-		--> Assures that runs with tf 1.3.0, but takes a looot of time...
-	Option 2: Use some existing scripts
-		https://www.tensorflow.org/tutorials/images/hub_with_keras
-		https://www.tensorflow.org/hub/tutorials/image_retraining
-		https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.md
-		https://hackernoon.com/creating-insanely-fast-image-classifiers-with-mobilenet-in-tensorflow-f030ce0a2991
-		--> At least give it a try, might work 
-			- mobilenet_v2_100_224 does not work, because it uses dilations. Error when trying to run it:
-				InvalidArgumentError (see above for traceback): NodeDef mentions attr 'dilations' not in Op
-				(It seems that arbitrary dilations were only added in tf1.6, see https://github.com/tensorflow/tensorflow/releases?after=v1.6.0
-			- mobilenet_v1 has same error :/
-		--> just create a simple model with keras yourself
-			- Same error as above!!! (dilations not in Op) Argh...
-		--> Save checkpoint file and open that one in tf 1.3.0
-			- error "ValueError: No op named DivNoNan in defined operations"
-			-> thus, go with option 1: train from scratch
-	Option 1:
-		https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/3_NeuralNetworks/convolutional_network.py
+	
+#### How to train model?
+- Main insight:
+	- VM already has protobuf v3.8.0, which is current version.
+	- So we can definitely use protobuf file as "exchange" format, i.e- train with different versions and simply run tensorflow pb file
+- Option 1: Start from scratch using tensorflow 1.3.0
+	--> Assures that runs with tf 1.3.0, but takes a looot of time...
+- Option 2: Use some existing scripts
+	- https://www.tensorflow.org/tutorials/images/hub_with_keras
+	- https://www.tensorflow.org/hub/tutorials/image_retraining
+	- https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.md
+	- https://hackernoon.com/creating-insanely-fast-image-classifiers-with-mobilenet-in-tensorflow-f030ce0a2991
+	- At least give it a try, might work 
+		- mobilenet_v2_100_224 does not work, because it uses dilations. Error when trying to run it:
+			InvalidArgumentError (see above for traceback): NodeDef mentions attr 'dilations' not in Op
+			(It seems that arbitrary dilations were only added in tf1.6, see https://github.com/tensorflow/tensorflow/releases?after=v1.6.0
+		- mobilenet_v1 has same error :/
+	- just create a simple model with keras yourself
+		- Same error as above!!! (dilations not in Op) Argh...
+	- Save checkpoint file and open that one in tf 1.3.0
+		- error "ValueError: No op named DivNoNan in defined operations"
+		- > thus, go with option 1: train from scratch
+- Option 1:
+	- https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/3_NeuralNetworks/convolutional_network.py
 
 - Create simple architecture
 	- input size 320x240
@@ -258,6 +261,7 @@ Idea how to implement (before realising there's also a walkthrough for that...):
 		-> yields a (?,1,1,num_filters) size
 	- flatten
 	- some dense connection to connect to (?, num_classes)
+	- > Works and is really small (~500kB protobuf file !!!)
 
 			
 		
