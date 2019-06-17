@@ -248,20 +248,20 @@ Idea how to implement (before realising there's also a walkthrough for that...):
 		- Same error as above!!! (dilations not in Op) Argh...
 	- Save checkpoint file and open that one in tf 1.3.0
 		- error "ValueError: No op named DivNoNan in defined operations"
-		- > thus, go with option 1: train from scratch
+		- >> thus, go with option 1: train from scratch
 - Option 1:
 	- https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/3_NeuralNetworks/convolutional_network.py
-
-- Create simple architecture
-	- input size 320x240
-	- Options:
-		4x blocks to scale down to 20x15
-		(5x blocks to scale down to 10x8)
-	- Then, another convolution and a maxpool over the whole image
-		-> yields a (?,1,1,num_filters) size
-	- flatten
-	- some dense connection to connect to (?, num_classes)
-	- > Works and is really small (~500kB protobuf file !!!)
+	- https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/3_NeuralNetworks/convolutional_network_raw.py
+	- Create simple architecture
+		- input size 320x240
+		- Options:
+			4x blocks to scale down to 20x15
+			(5x blocks to scale down to 10x8)
+		- Then, another convolution and a maxpool over the whole image
+			-> yields a (?,1,1,num_filters) size
+		- flatten
+		- some dense connection to connect to (?, num_classes)
+		- > Works and is really small (~500kB protobuf file !!!)
 
 			
 		
