@@ -106,11 +106,11 @@ https://superuser.com/questions/1094936/what-are-2d-video-acceleration-and-3d-ac
 
 ## Solutions from other students
 
-https://github.com/d2macster/self-driving-car-capstone
-https://github.com/swap1712/carnd-capstone
-https://dmavridis.github.io/CarND_System_Integration/
-http://jeremyshannon.com/2017/11/08/udacity-sdcnd-capstone-pt1.html
-https://medium.com/udacity/the-end-of-a-self-driving-car-journey-finale-running-code-on-a-real-car-graduation-a10607ed0180
+- https://github.com/d2macster/self-driving-car-capstone
+- https://github.com/swap1712/carnd-capstone
+- https://dmavridis.github.io/CarND_System_Integration/
+- http://jeremyshannon.com/2017/11/08/udacity-sdcnd-capstone-pt1.html
+- https://medium.com/udacity/the-end-of-a-self-driving-car-journey-finale-running-code-on-a-real-car-graduation-a10607ed0180
 
 ## Tips for solution from udacity pages
 
@@ -248,7 +248,7 @@ Idea how to implement (before realising there's also a walkthrough for that...):
 		- Same error as above!!! (dilations not in Op) Argh...
 	- Save checkpoint file and open that one in tf 1.3.0
 		- error "ValueError: No op named DivNoNan in defined operations"
-		- >> thus, go with option 1: train from scratch
+		- -> thus, go with option 1: train from scratch
 - Option 1:
 	- https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/3_NeuralNetworks/convolutional_network.py
 	- https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/3_NeuralNetworks/convolutional_network_raw.py
