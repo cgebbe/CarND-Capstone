@@ -6,9 +6,9 @@
 
 
 ## Questions on project
-. do I need to navigate both tracks in simulator?
+- do I need to navigate both tracks in simulator?
 	-> no, only the first one (cause second one has nothing on it!)
-. do I need to work as a team ?
+- do I need to work as a team ?
 	-> no, only simulation is enough (from video "have fun")
 
 
@@ -16,32 +16,33 @@
 
 ## Useful ROS commands
 
-$rosnode list -- lists current nodes
-$rostopic list -- lists current topics
-$rostopic info /turtle1/cmd_vel --  information about topic (msg type,pubs,subs,)
-$rostopic echo /turtle1/cmd_vel -- prints all messages sent via topic
-$rosmsg info /geometry_msgs/Twist -- information about message
+- $rosnode list -- lists current nodes
+- $rostopic list -- lists current topics
+- $rostopic info /turtle1/cmd_vel --  information about topic (msg type,pubs,subs,)
+- $rostopic echo /turtle1/cmd_vel -- prints all messages sent via topic
+- $rosmsg info /geometry_msgs/Twist -- information about message
 
-run turtlesim
-turtelsim commands: list nodes, topics, echo topic, ...
-catkin
-roslaunch
-rosdep
-gazebo
-writing ROS nodes - publisher and subscriber (in python !)
-rospy.logwarn / loginfo !!!
+- run turtlesim
+- turtelsim commands: list nodes, topics, echo topic, ...
+- catkin
+- roslaunch
+- rosdep
+- gazebo
+- writing ROS nodes - publisher and subscriber (in python !)
+- rospy.logwarn / loginfo !!!
 
 
 ## Which ROS version do I need?
-Linux mint 19 Tara
+Project requires: 
+- rosdistro: kinetic
+- rosversion: 1.12.6
+
+I have: Linux mint 19 Tara
 = Ubuntu Bionic 18.04
 = ROS melodic
 
 "ROS kinetic only supports Ubuntu 16.04", see http://answers.ros.org/question/297008/how-could-i-install-ros-on-ubuntu-18/
 Alternatively, ROS melodic for Ubuntu 18.04
-
-rosdistro: kinetic
-rosversion: 1.12.6
 
 -> Better use ROS in VM t avoid any version mismatches
 
@@ -142,19 +143,19 @@ https://medium.com/udacity/the-end-of-a-self-driving-car-journey-finale-running-
 
 ## Waypoint updater
 
-. publish the _next_ ~200 waypoints ahead of vehicle !
-. velocity is stored in twist.linear.x ?!
+- publish the _next_ ~200 waypoints ahead of vehicle !
+- velocity is stored in twist.linear.x ?!
 
 ## DBW
 
-. output values
-	. throttle should be in range [0,1]
-	. break should be in N*m -> compute using desired acceleration, weight and wheel radius
+- output values
+	- throttle should be in range [0,1]
+	- break should be in N*m -> compute using desired acceleration, weight and wheel radius
 		(700 Nm of torque required for standstill)
 		force = mass_ofcar * acceleration
 		torque = force * wheel_radius
 		torque limited by decel_limit parameter
-. usage of twist controller
+- usage of twist controller
 	input: twist data (goal?!)
 	output: throttle, brake, steering
 	WITHIN this method use...
@@ -170,18 +171,18 @@ Idea how to implement (before realising there's also a walkthrough for that...):
 	output:
 		steering = yaw_controller.get_steering(vel_goal_z, vel_goal_angle_z, vel_curr)
 		
-. check
+- check
 
 ## Consider traffic lights using ground truth data
 
 ### Tips from video for traffic light detection
-. for generating ground truth use (vehicle/traffic_lights), which contains
-	. traffic light position in 3d 
-	. current color state
-. there are already pretrained SSD models available (tf zoo)
-. potentially use dataset from others?
-. Carla uses tensorflow 1.3.0
-. for traffic light
+- for generating ground truth use (vehicle/traffic_lights), which contains
+	- traffic light position in 3d 
+	- current color state
+- there are already pretrained SSD models available (tf zoo)
+- potentially use dataset from others?
+- Carla uses tensorflow 1.3.0
+- for traffic light
 	- if no stop line upfront -> return index (-1)
 
 ### Tips from video for final version of waypoint updater
@@ -227,7 +228,7 @@ Idea how to implement (before realising there's also a walkthrough for that...):
 - How to train model?
 	Main insight:
 		VM already has protobuf v3.8.0, which is current version.
-		So we can definitely use protobuf file as "exchange" format, i.e. train with different versions and simply run tensorflow pb file
+		So we can definitely use protobuf file as "exchange" format, i.e- train with different versions and simply run tensorflow pb file
 	Option 1: Start from scratch using tensorflow 1.3.0
 		--> Assures that runs with tf 1.3.0, but takes a looot of time...
 	Option 2: Use some existing scripts
