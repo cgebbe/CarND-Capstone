@@ -1,74 +1,52 @@
-rosdistro: kinetic
-rosversion: 1.12.6
+
+# Submission to capstone project of 
+
+* See git repo describing task and setup: https://github.com/udacity/CarND-Capstone
+* Individual submission from me (, i.e. not team submission)
 
 
-TODO ROS tutorial:
-	run turtlesim
-	turtelsim commands: list nodes, topics, echo topic, ...
-	catkin
-	roslaunch
-	rosdep
-	gazebo
-	writing ROS nodes - publisher and subscriber (in python !)
-	rospy.logwarn / loginfo !!!
-
-Which ROS version do I need?
-	Linux mint 19 Tara
-	= Ubuntu Bionic 18.04
-	= ROS melodic
-	
-	"ROS kinetic only supports Ubuntu 16.04", see http://answers.ros.org/question/297008/how-could-i-install-ros-on-ubuntu-18/
-	Alternatively, ROS melodic for Ubuntu 18.04
-	
-
-# Tips for solution
-
-1. waypoint updater node
-	inputs: /base_waypoints = styx_msgs::Lane
-			/current_pose = geometry_msgs::PoseStamped (x,y,z,w=yaw in quaternion)
-	outputs: /final_waypoints = styx_msgs::Lane = list of waypoints,
-		/final_waypoints = styx_msgs::Lane = list of waypoints, which contain
-				geometry_msgs/PoseStamped pose = pose (x,y,z) and orientation (x,y,z,w=yaw (what for?!))
-				geometry_msgs/TwistStamped twist = x,y,z, angle_x,y,z
-	"purpose of this node is to update target velocity property of each waypoint"
-	??? - How should I integrate velocity to output message?
-
-1.1. Waypoint follower node (already existing!)
-	inputs: /final_waypoints = styx_msgs::Lane
-	outputs: /twist_cmd = geometry_msgs::TwistStamped
-	
-2. DBW node
-	inputs: /twist_cmd, /current_velocity
-	outputs: /vehicle/steering, throttle, brake
-	--> milestone: car should drive in the simulator, ignoring the traffic lights
-	
-3. Traffic light detection node
-	inputs: /image_color (/vehicle/traffic_lights for generating ground truth, see below)
-	outputs: /traffic_waypoints
-	
-4. Waypoint updater node (Full)
-	inputs: /traffic_waypoint in addition to previous inputs (see above)
-	outputs: /final_waypoints
-
-
-## Traffic light detection
-	. for generating ground truth use (vehicle/traffic_lights), which contains
-		. traffic light position in 3d 
-		. current color state
-	. there are already pretrained SSD models available (tf zoo)
-	. potentially use dataset from others?
-	. Carla uses tensorflow 1.3.0
-
-
-# Questions
-. do I need to navigate both tracks?
+## Questions on project
+. do I need to navigate both tracks in simulator?
 	-> no, only the first one (cause second one has nothing on it!)
 . do I need to work as a team ?
 	-> no, only simulation is enough (from video "have fun")
-. how to start simulator?
 
 
-# Problem of using GPU in virtualbox
+# Setting up ROS and VM
+
+## Useful ROS commands
+
+$rosnode list -- lists current nodes
+$rostopic list -- lists current topics
+$rostopic info /turtle1/cmd_vel --  information about topic (msg type,pubs,subs,)
+$rostopic echo /turtle1/cmd_vel -- prints all messages sent via topic
+$rosmsg info /geometry_msgs/Twist -- information about message
+
+run turtlesim
+turtelsim commands: list nodes, topics, echo topic, ...
+catkin
+roslaunch
+rosdep
+gazebo
+writing ROS nodes - publisher and subscriber (in python !)
+rospy.logwarn / loginfo !!!
+
+
+## Which ROS version do I need?
+Linux mint 19 Tara
+= Ubuntu Bionic 18.04
+= ROS melodic
+
+"ROS kinetic only supports Ubuntu 16.04", see http://answers.ros.org/question/297008/how-could-i-install-ros-on-ubuntu-18/
+Alternatively, ROS melodic for Ubuntu 18.04
+
+rosdistro: kinetic
+rosversion: 1.12.6
+
+-> Better use ROS in VM t avoid any version mismatches
+
+
+## Problem of using GPU in virtualbox
 
 - GPU already required in host for simulator
 - sharing can lead to memory problems, see https://superuser.com/questions/779070/use-nvidia-gpu-from-virtualbox
@@ -78,15 +56,8 @@ Which ROS version do I need?
 https://superuser.com/questions/1094936/what-are-2d-video-acceleration-and-3d-acceleration
 
 
-# ROS
-$rosnode list -- lists current nodes
-$rostopic list -- lists current topics
-$rostopic info /turtle1/cmd_vel --  information about topic (msg type,pubs,subs,)
-$rostopic echo /turtle1/cmd_vel -- prints all messages sent via topic
-$rosmsg info /geometry_msgs/Twist -- information about message
 
-
-# Get stuff running
+## Setting up VM
 
 1. activate colors in bash
 	-> gedit ~/.bashrc and uncomment force-color line
@@ -129,13 +100,44 @@ $rosmsg info /geometry_msgs/Twist -- information about message
 	
 	. helpful links: http://answers.ros.org/question/105711/rospy-custom-message-importerror-no-module-named-msg/
 
-# Solutions from other students
+# My notes during creating the solution
+
+## Solutions from other students
 
 https://github.com/d2macster/self-driving-car-capstone
 https://github.com/swap1712/carnd-capstone
 https://dmavridis.github.io/CarND_System_Integration/
 http://jeremyshannon.com/2017/11/08/udacity-sdcnd-capstone-pt1.html
 https://medium.com/udacity/the-end-of-a-self-driving-car-journey-finale-running-code-on-a-real-car-graduation-a10607ed0180
+
+## Tips for solution from udacity pages
+
+1. waypoint updater node
+	inputs: /base_waypoints = styx_msgs::Lane
+			/current_pose = geometry_msgs::PoseStamped (x,y,z,w=yaw in quaternion)
+	outputs: /final_waypoints = styx_msgs::Lane = list of waypoints,
+		/final_waypoints = styx_msgs::Lane = list of waypoints, which contain
+				geometry_msgs/PoseStamped pose = pose (x,y,z) and orientation (x,y,z,w=yaw (what for?!))
+				geometry_msgs/TwistStamped twist = x,y,z, angle_x,y,z
+	"purpose of this node is to update target velocity property of each waypoint"
+	??? - How should I integrate velocity to output message?
+
+1.1. Waypoint follower node (already existing!)
+	inputs: /final_waypoints = styx_msgs::Lane
+	outputs: /twist_cmd = geometry_msgs::TwistStamped
+	
+2. DBW node
+	inputs: /twist_cmd, /current_velocity
+	outputs: /vehicle/steering, throttle, brake
+	--> milestone: car should drive in the simulator, ignoring the traffic lights
+	
+3. Traffic light detection node
+	inputs: /image_color (/vehicle/traffic_lights for generating ground truth, see below)
+	outputs: /traffic_waypoints
+	
+4. Waypoint updater node (Full)
+	inputs: /traffic_waypoint in addition to previous inputs (see above)
+	outputs: /final_waypoints
 
 
 ## Waypoint updater
@@ -172,17 +174,22 @@ Idea how to implement (before realising there's also a walkthrough for that...):
 
 ## Consider traffic lights using ground truth data
 
-Some tips from video:
-
-for traffic light
+### Tips from video for traffic light detection
+. for generating ground truth use (vehicle/traffic_lights), which contains
+	. traffic light position in 3d 
+	. current color state
+. there are already pretrained SSD models available (tf zoo)
+. potentially use dataset from others?
+. Carla uses tensorflow 1.3.0
+. for traffic light
 	- if no stop line upfront -> return index (-1)
 
-for waypoint updater final
-	- stop 2 waypoints before stop line 
-	- setup deceleration waypoints 
-		acc = dv/dt = dv/(s/v) = dv*v/s <-> dv <= acc_max*s/v !
-		OR v = sqrt(2*acc_max*dist)
-	- make sure that deceleration is not larger than speed limit at the end...
+### Tips from video for final version of waypoint updater
+- stop 2 waypoints before stop line 
+- setup deceleration waypoints 
+	acc = dv/dt = dv/(s/v) = dv*v/s <-> dv <= acc_max*s/v !
+	OR v = sqrt(2*acc_max*dist)
+- make sure that deceleration is not larger than speed limit at the end...
 
 
 ## Consider traffic lights using CNN classifier
