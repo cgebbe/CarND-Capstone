@@ -45,7 +45,7 @@ class WaypointUpdater(object):
         self.waypoints_2d = None
         self.waypoints_tree = None
         self.velocity_current = None
-        self.velocity_in_meter_per_s = 20.0
+        self.velocity_max_in_meter_per_s = None
         self.idx_wp_to_stop = -1
 
         # start looping
@@ -69,6 +69,8 @@ class WaypointUpdater(object):
             self.msg_waypoints = msg_waypoints
             self.waypoints_2d = [[wp.pose.pose.position.x, wp.pose.pose.position.y] for wp in msg_waypoints.waypoints]
             self.waypoints_tree = scipy.spatial.KDTree(self.waypoints_2d)
+            velocities = [wp.twist.twist.linear.x for wp in self.msg_waypoints.waypoints]
+            self.velocity_max_in_meter_per_s = max(velocities)*0.95
 
     def cb_traffic(self, msg):
         self.idx_wp_to_stop = msg.data - 5 # already stop a bit earlier...
@@ -98,7 +100,7 @@ class WaypointUpdater(object):
         #                       and self.velocity_current > 0.9 * self.velocity_in_meter_per_s)
         if self.idx_wp_to_stop < 0: # negative value = no need to stop anywhere
             for wp in msg_lane.waypoints:
-                wp.twist.twist.linear.x = self.velocity_in_meter_per_s
+                wp.twist.twist.linear.x = self.velocity_max_in_meter_per_s
         else:
             idx_list_to_stop = self.idx_wp_to_stop - idx_wp_start
             dist = 0
@@ -109,7 +111,7 @@ class WaypointUpdater(object):
                 else:
                     dist += self.calc_distance(idx_wp_start + idx, idx_wp_start + idx+1)
                     vel = np.sqrt(2 * abs(ACC_MIN) * dist)
-                    vel = np.clip(vel, 0, self.velocity_in_meter_per_s)
+                    vel = np.clip(vel, 0, self.velocity_max_in_meter_per_s)
                     msg_lane.waypoints[idx].twist.twist.linear.x = vel
         return msg_lane
 
