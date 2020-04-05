@@ -31,7 +31,7 @@ We were already given a ROS system structure (shown above) and had to write thre
   - From waypoint follower node: twist command representing the target linear and angular velocities
   - From simulator: current velocity
 - Outputs
-  - To simulator: Steering angle, based on mainly the target angular velocity while taking account specific vehicle parameters such as the wheel base, steer ratio and maximum steering angle
+  - To simulator: Steering angle, based on mainly the target angular velocity while taking into account specific vehicle parameters such as the wheel base, the steer ratio and the maximum steering angle
   - To simulator: Acceleration & Break, calculated via a PID-controller which minimizes the difference between the current and target velocity
 
 #### Traffic Light Detection node
